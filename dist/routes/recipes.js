@@ -27,3 +27,33 @@ exports.recipesRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, f
         res.status(500).send({ error });
     }
 }));
+exports.recipesRouter.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const newRecipe = new recipe_1.Recipe(Object.assign({}, req.body));
+        const item = yield newRecipe.save();
+        res.status(200).send(item);
+    }
+    catch (error) {
+        res.status(500).send({ error });
+    }
+}));
+exports.recipesRouter.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const recipes = yield recipe_1.Recipe.find({ userOwner: id });
+        res.status(200).send({ recipes });
+    }
+    catch (error) {
+        res.status(500).send({ error });
+    }
+}));
+exports.recipesRouter.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        yield recipe_1.Recipe.findByIdAndUpdate({ _id: id }, Object.assign({}, req.body));
+        res.status(200).send(req.body);
+    }
+    catch (error) {
+        res.status(500).send({ error });
+    }
+}));

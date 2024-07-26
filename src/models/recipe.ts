@@ -1,4 +1,4 @@
-import { model, Schema, Types } from "mongoose";
+import mongoose from "mongoose";
 
 interface IRecipe {
   name: string
@@ -8,13 +8,13 @@ interface IRecipe {
   userOwner: any
 }
 
-const RecipeSchema = new Schema<IRecipe>({
+const RecipeSchema = new mongoose.Schema<IRecipe>({
   name: { type: String, require: true},
   ingredients: [{ type: String, require: true }],
   instruction: { type: String, require: true},
   imgUrl: { type: String, require: true},
-  userOwner: {type: Types.ObjectId, ref: "users", required: true},
+  userOwner: {type: mongoose.Types.ObjectId, ref: "users", required: true},
 },
 );
 
-export const Recipe = model("Recipe", RecipeSchema);
+export const Recipe = mongoose.model("Recipe", RecipeSchema);
