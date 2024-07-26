@@ -41,6 +41,18 @@ exports.recipesRouter.post('/', (req, res) => __awaiter(void 0, void 0, void 0, 
         res.status(500).send({ error });
     }
 }));
+exports.recipesRouter.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const { userOwner } = req.body;
+        yield recipe_1.Recipe.findByIdAndDelete({ _id: id });
+        yield user_1.User.findByIdAndUpdate({ _id: userOwner }, { $inc: { recipesQuantity: -1 } });
+        res.status(200).send({ message: 'Deleted' });
+    }
+    catch (error) {
+        res.status(500).send({ error });
+    }
+}));
 exports.recipesRouter.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;

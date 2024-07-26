@@ -42,6 +42,27 @@ recipesRouter.post('/', async (req: Request, res: Response) => {
     }
 })
 
+
+recipesRouter.delete('/:id', async (req: Request, res: Response) => {
+    try {  
+        const { id } = req.params
+
+        const {userOwner} = req.body
+    
+        await Recipe.findByIdAndDelete({_id: id})
+
+        await User.findByIdAndUpdate(
+            { _id: userOwner }, 
+            { $inc: { recipesQuantity: -1 } }
+        );
+
+        res.status(200).send({message: 'Deleted'})
+        
+    } catch (error) {
+        res.status(500).send({error})
+    }
+})
+
 recipesRouter.get('/:id', async (req: Request, res: Response) => {
     try {  
         const { id } = req.params
