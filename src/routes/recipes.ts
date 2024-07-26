@@ -23,9 +23,17 @@ recipesRouter.get('/', async (req: Request, res: Response) => {
 recipesRouter.post('/', async (req: Request, res: Response) => {
     try {  
         
-        const newRecipe = new Recipe({...req.body})
+        const {userOwner} = req.body 
+
+        const newRecipe = new Recipe(req.body)
 
           const item = await newRecipe.save()
+          debugger
+
+          await User.findByIdAndUpdate(
+            { _id: userOwner }, 
+            { $inc: { recipesQuantity: 1 } }
+        );
 
           res.status(200).send(item)
         

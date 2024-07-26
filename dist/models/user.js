@@ -8,5 +8,6 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const UserSchema = new mongoose_1.default.Schema({
     name: { type: String, require: true, unique: true },
     passwordHash: { type: String, require: true },
+    recipesQuantity: { type: Number, default: 0 }
 });
 exports.User = mongoose_1.default.model("User", UserSchema);

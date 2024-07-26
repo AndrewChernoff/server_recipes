@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.recipesRouter = void 0;
 const express_1 = require("express");
 const recipe_1 = require("../models/recipe");
+const user_1 = require("../models/user");
 exports.recipesRouter = (0, express_1.Router)({});
 exports.recipesRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -29,8 +30,11 @@ exports.recipesRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, f
 }));
 exports.recipesRouter.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const newRecipe = new recipe_1.Recipe(Object.assign({}, req.body));
+        const { userOwner } = req.body;
+        const newRecipe = new recipe_1.Recipe(req.body);
         const item = yield newRecipe.save();
+        debugger;
+        yield user_1.User.findByIdAndUpdate({ _id: userOwner }, { $inc: { recipesQuantity: 1 } });
         res.status(200).send(item);
     }
     catch (error) {
