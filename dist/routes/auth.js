@@ -17,12 +17,14 @@ const express_1 = require("express");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const user_1 = require("../models/user");
+const authValidation_1 = require("../middleware/authValidation");
+const handleValidationError_1 = require("../middleware/handleValidationError");
 exports.authRouter = (0, express_1.Router)({});
-exports.authRouter.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.authRouter.post("/register", authValidation_1.validateAuthFields, handleValidationError_1.handleValidationError, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, password } = req.body;
     const userDB = yield user_1.User.findOne({ name });
     if (userDB) {
-        res.status(400).send({ message: 'User exists' });
+        res.status(400).send({ message: "User exists" });
     }
     bcrypt_1.default.genSalt(10, function (err, salt) {
         bcrypt_1.default.hash(password, salt, function (err, hash) {
@@ -33,18 +35,21 @@ exports.authRouter.post('/register', (req, res) => __awaiter(void 0, void 0, voi
         });
     });
 }));
-exports.authRouter.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.authRouter.post("/login", authValidation_1.validateAuthFields, handleValidationError_1.handleValidationError, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, password } = req.body;
     const userDB = yield user_1.User.findOne({ name });
+    if (!userDB) {
+        return res.status(400).send({ message: "Пользователь не найден!" });
+    }
     const passwordMatch = yield bcrypt_1.default.compare(password, userDB.passwordHash);
-    if (passwordMatch && userDB) {
+    if (passwordMatch) {
         userDB.passwordHash = undefined;
-        const token = jsonwebtoken_1.default.sign({ userId: userDB._id }, 'secret', {
-            expiresIn: '1h',
+        const token = jsonwebtoken_1.default.sign({ userId: userDB._id }, "secret", {
+            expiresIn: "1h",
         });
         res.status(200).send({ data: Object.assign({ token }, userDB._doc) });
     }
     else {
-        res.status(400).send({ message: "Password or name is wrong!" });
+        res.status(400).send({ message: "Пароль неверный!" });
     }
 }));
