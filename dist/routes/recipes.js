@@ -13,6 +13,7 @@ exports.recipesRouter = void 0;
 const express_1 = require("express");
 const recipe_1 = require("../models/recipe");
 const user_1 = require("../models/user");
+const middleware_1 = require("../middleware/middleware");
 exports.recipesRouter = (0, express_1.Router)({});
 exports.recipesRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -28,25 +29,40 @@ exports.recipesRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, f
         res.status(500).send({ error });
     }
 }));
-exports.recipesRouter.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.recipesRouter.post('/', middleware_1.checkAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { userOwner } = req.body;
+        const userId = req.params.userId;
         const newRecipe = new recipe_1.Recipe(req.body);
         const item = yield newRecipe.save();
-        debugger;
-        yield user_1.User.findByIdAndUpdate({ _id: userOwner }, { $inc: { recipesQuantity: 1 } });
+        yield user_1.User.findByIdAndUpdate({ _id: userId }, { $inc: { recipesQuantity: 1 } });
         res.status(200).send(item);
     }
     catch (error) {
         res.status(500).send({ error });
     }
 }));
-exports.recipesRouter.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.recipesRouter.put('/:id', middleware_1.checkAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        const { userOwner } = req.body;
+        yield recipe_1.Recipe.findByIdAndUpdate({ _id: id }, {
+            name: req.body.name,
+            ingredients: req.body.ingredients,
+            instruction: req.body.instruction,
+            imgUrl: req.body.imgUrl,
+            userOwner: req.params.id,
+        });
+        res.status(200).send(req.body);
+    }
+    catch (error) {
+        res.status(500).send({ error });
+    }
+}));
+exports.recipesRouter.delete('/:id', middleware_1.checkAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const userId = req.params.userId;
         yield recipe_1.Recipe.findByIdAndDelete({ _id: id });
-        yield user_1.User.findByIdAndUpdate({ _id: userOwner }, { $inc: { recipesQuantity: -1 } });
+        yield user_1.User.findByIdAndUpdate({ _id: userId }, { $inc: { recipesQuantity: -1 } });
         res.status(200).send({ message: 'Deleted' });
     }
     catch (error) {
@@ -58,16 +74,6 @@ exports.recipesRouter.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0
         const { id } = req.params;
         const recipes = yield recipe_1.Recipe.find({ userOwner: id });
         res.status(200).send({ recipes });
-    }
-    catch (error) {
-        res.status(500).send({ error });
-    }
-}));
-exports.recipesRouter.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { id } = req.params;
-        yield recipe_1.Recipe.findByIdAndUpdate({ _id: id }, Object.assign({}, req.body));
-        res.status(200).send(req.body);
     }
     catch (error) {
         res.status(500).send({ error });

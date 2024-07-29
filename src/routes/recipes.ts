@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { Recipe } from '../models/recipe';
 import { Error } from 'mongoose';
 import { User } from '../models/user';
+import { checkAuth } from '../middleware/middleware';
 
 export const recipesRouter = Router({})
 
@@ -20,18 +21,17 @@ recipesRouter.get('/', async (req: Request, res: Response) => {
     }
 })
 
-recipesRouter.post('/', async (req: Request, res: Response) => {
+recipesRouter.post('/', checkAuth, async (req: Request, res: Response) => {
     try {  
-        
-        const {userOwner} = req.body 
+
+        const userId = req.params.userId         
 
         const newRecipe = new Recipe(req.body)
 
           const item = await newRecipe.save()
-          debugger
 
           await User.findByIdAndUpdate(
-            { _id: userOwner }, 
+            { _id: userId }, 
             { $inc: { recipesQuantity: 1 } }
         );
 
@@ -42,17 +42,36 @@ recipesRouter.post('/', async (req: Request, res: Response) => {
     }
 })
 
-
-recipesRouter.delete('/:id', async (req: Request, res: Response) => {
+recipesRouter.put('/:id', checkAuth, async (req: Request, res: Response) => {
     try {  
         const { id } = req.params
-
-        const {userOwner} = req.body
     
+        await Recipe.findByIdAndUpdate({_id: id}, {
+            name: req.body.name,
+            ingredients: req.body.ingredients,
+            instruction: req.body.instruction,
+            imgUrl: req.body.imgUrl,
+            userOwner: req.params.id,
+          })
+
+        res.status(200).send(req.body)
+        
+    } catch (error) {
+        res.status(500).send({error})
+    }
+})
+
+
+recipesRouter.delete('/:id', checkAuth, async (req: Request, res: Response) => {
+    try {  
+        const { id } = req.params
+    
+        const userId = req.params.userId        
+
         await Recipe.findByIdAndDelete({_id: id})
 
         await User.findByIdAndUpdate(
-            { _id: userOwner }, 
+            { _id: userId }, 
             { $inc: { recipesQuantity: -1 } }
         );
 
@@ -76,15 +95,4 @@ recipesRouter.get('/:id', async (req: Request, res: Response) => {
     }
 })
 
-recipesRouter.put('/:id', async (req: Request, res: Response) => {
-    try {  
-        const { id } = req.params
-    
-        await Recipe.findByIdAndUpdate({_id: id}, { ...req.body })
 
-        res.status(200).send(req.body)
-        
-    } catch (error) {
-        res.status(500).send({error})
-    }
-})
