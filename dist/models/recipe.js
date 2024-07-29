@@ -10,6 +10,6 @@ const RecipeSchema = new mongoose_1.default.Schema({
     ingredients: [{ type: String, require: true }],
     instruction: { type: String, require: true },
     imgUrl: { type: String, require: true },
-    userOwner: { type: mongoose_1.default.Types.ObjectId, ref: "users", required: true },
+    userOwnerId: { type: mongoose_1.default.Types.ObjectId, ref: "users", required: true },
 });
 exports.Recipe = mongoose_1.default.model("Recipe", RecipeSchema);

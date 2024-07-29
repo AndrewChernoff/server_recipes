@@ -49,7 +49,7 @@ exports.recipesRouter.put('/:id', middleware_1.checkAuth, (req, res) => __awaite
             ingredients: req.body.ingredients,
             instruction: req.body.instruction,
             imgUrl: req.body.imgUrl,
-            userOwner: req.params.id,
+            userOwnerId: req.params.id,
         });
         res.status(200).send(req.body);
     }
@@ -72,7 +72,7 @@ exports.recipesRouter.delete('/:id', middleware_1.checkAuth, (req, res) => __awa
 exports.recipesRouter.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        const recipes = yield recipe_1.Recipe.find({ userOwner: id });
+        const recipes = yield recipe_1.Recipe.find({ userOwnerId: id });
         res.status(200).send({ recipes });
     }
     catch (error) {

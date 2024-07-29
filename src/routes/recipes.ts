@@ -51,7 +51,7 @@ recipesRouter.put('/:id', checkAuth, async (req: Request, res: Response) => {
             ingredients: req.body.ingredients,
             instruction: req.body.instruction,
             imgUrl: req.body.imgUrl,
-            userOwner: req.params.id,
+            userOwnerId: req.params.id,
           })
 
         res.status(200).send(req.body)
@@ -86,7 +86,7 @@ recipesRouter.get('/:id', async (req: Request, res: Response) => {
     try {  
         const { id } = req.params
     
-        const recipes = await Recipe.find({userOwner: id})
+        const recipes = await Recipe.find({userOwnerId: id})
 
         res.status(200).send({recipes})
         

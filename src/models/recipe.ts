@@ -5,7 +5,7 @@ interface IRecipe {
   ingredients: string[]
   instruction: string
   imgUrl: string
-  userOwner: any
+  userOwnerId: any
 }
 
 const RecipeSchema = new mongoose.Schema<IRecipe>({
@@ -13,7 +13,7 @@ const RecipeSchema = new mongoose.Schema<IRecipe>({
   ingredients: [{ type: String, require: true }],
   instruction: { type: String, require: true},
   imgUrl: { type: String, require: true},
-  userOwner: {type: mongoose.Types.ObjectId, ref: "users", required: true},
+  userOwnerId: {type: mongoose.Types.ObjectId, ref: "users", required: true},
 },
 );
 
